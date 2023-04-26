@@ -4,10 +4,12 @@ import br.com.danielcallado.domain.entity.Cliente;
 import br.com.danielcallado.domain.entity.ItemPedido;
 import br.com.danielcallado.domain.entity.Pedido;
 import br.com.danielcallado.domain.entity.Produto;
+import br.com.danielcallado.domain.enums.StatusPedido;
 import br.com.danielcallado.domain.repository.Clientes;
 import br.com.danielcallado.domain.repository.ItensPedido;
 import br.com.danielcallado.domain.repository.Pedidos;
 import br.com.danielcallado.domain.repository.Produtos;
+import br.com.danielcallado.exception.PedidoNaoEncontradoException;
 import br.com.danielcallado.exception.RegraNegocioException;
 import br.com.danielcallado.rest.dto.ItemPedidoDTO;
 import br.com.danielcallado.rest.dto.PedidoDTO;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,12 +43,30 @@ public class PedidoServiceImpl implements PedidosService {
         pedido.setTotal(dto.getTotal());
         pedido.setDataPedido(LocalDate.now());
         pedido.setCliente(cliente);
+        pedido.setStatus(StatusPedido.REALIZADO);
 
         List<ItemPedido> itemsPedido = converterItems(pedido, dto.getItemsPedido());
         repository.save(pedido);
         itensPedidoRepository.saveAll(itemsPedido);
         pedido.setItemsPedido(itemsPedido);
         return pedido;
+    }
+
+    @Override
+    public Optional<Pedido> obterPedidoCompleto(Integer id) {
+        return repository.findByIdFetchItens(id);
+    }
+
+    @Override
+    @Transactional
+    public void atualizaStatus(Integer id, StatusPedido statusPedido) {
+        repository
+                .findById(id)
+                .map(pedido -> {
+                    pedido.setStatus(statusPedido);
+                    return repository.save(pedido);
+                })
+                .orElseThrow(() -> new PedidoNaoEncontradoException());
     }
 
     private List<ItemPedido> converterItems(Pedido pedido, List<ItemPedidoDTO> items){

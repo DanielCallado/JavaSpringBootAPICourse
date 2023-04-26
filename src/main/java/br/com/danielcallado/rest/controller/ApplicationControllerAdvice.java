@@ -1,5 +1,6 @@
 package br.com.danielcallado.rest.controller;
 
+import br.com.danielcallado.exception.PedidoNaoEncontradoException;
 import br.com.danielcallado.exception.RegraNegocioException;
 import br.com.danielcallado.rest.ApiErrors;
 import org.springframework.http.HttpStatus;
@@ -15,5 +16,11 @@ public class ApplicationControllerAdvice {
     public ApiErrors handleRegraNegocioException(RegraNegocioException ex) {
         String message = ex.getMessage();
         return new ApiErrors(message);
+    }
+
+    @ExceptionHandler(PedidoNaoEncontradoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiErrors handlePedidoNaoEncontradoException(PedidoNaoEncontradoException ex) {
+        return new ApiErrors(ex.getMessage());
     }
 }
