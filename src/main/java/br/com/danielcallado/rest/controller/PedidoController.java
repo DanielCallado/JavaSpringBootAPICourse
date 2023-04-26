@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +33,7 @@ public class PedidoController {
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
-    public Integer savePedido (@RequestBody PedidoDTO dto) {
+    public Integer savePedido (@RequestBody @Valid PedidoDTO dto) {
         Pedido pedido = pedidosService.salvar(dto);
         return pedido.getId();
     }
