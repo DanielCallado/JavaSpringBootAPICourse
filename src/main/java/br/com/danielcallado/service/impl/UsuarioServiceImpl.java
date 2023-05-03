@@ -2,6 +2,7 @@ package br.com.danielcallado.service.impl;
 
 import br.com.danielcallado.domain.entity.Usuario;
 import br.com.danielcallado.domain.repository.Usuarios;
+import br.com.danielcallado.exception.SenhaInvalidaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,6 +38,16 @@ public class UsuarioServiceImpl implements UserDetailsService {
                 .roles(roles)
                 .build();
     }
+
+    public UserDetails autenticar(Usuario usuario) {
+        UserDetails user = loadUserByUsername(usuario.getLogin());
+        boolean senhasBatem = encoder.matches(usuario.getSenha(), user.getPassword());
+        if (senhasBatem) {
+            return user;
+        }
+        throw new SenhaInvalidaException();
+    }
+
     @Transactional
     public Usuario salvar(Usuario usuario){
         return usuarios.save(usuario);
