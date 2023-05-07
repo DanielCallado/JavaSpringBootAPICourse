@@ -6,6 +6,9 @@ import br.com.danielcallado.rest.dto.CredenciaisDTO;
 import br.com.danielcallado.rest.dto.TokenDTO;
 import br.com.danielcallado.security.jwt.JwtService;
 import br.com.danielcallado.service.impl.UsuarioServiceImpl;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +30,13 @@ public class UsuarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation("Salva um novo usuario")
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 201, message = "Usuário salvo com sucessi."),
+                    @ApiResponse(code = 400, message = "Erro de validação dos campos do usuário.")
+            }
+    )
     public Usuario salvar(@RequestBody @Valid Usuario usuario){
         String senhaCryptografada = passwordEncoder.encode(usuario.getSenha());
         usuario.setSenha(senhaCryptografada);
@@ -34,6 +44,13 @@ public class UsuarioController {
     }
 
     @PostMapping("/auth")
+    @ApiOperation("Autentica um usuário existente.")
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Cliente validado com sucesso."),
+                    @ApiResponse(code = 401, message = "Usuário não autenticado.")
+            }
+    )
     public TokenDTO autenticar(@RequestBody CredenciaisDTO credenciaisDTO){
         try {
             Usuario usuario = Usuario.builder()

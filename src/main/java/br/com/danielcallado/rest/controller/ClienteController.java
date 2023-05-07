@@ -2,6 +2,10 @@ package br.com.danielcallado.rest.controller;
 
 import br.com.danielcallado.domain.entity.Cliente;
 import br.com.danielcallado.domain.repository.Clientes;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
@@ -13,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/clientes")
+@Api("Api Clientes")
 public class ClienteController {
 
     private Clientes clienteRepository;
@@ -22,6 +27,13 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
+    @ApiOperation("Obter um cliente pelo ID")
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Cliente encontrado."),
+                    @ApiResponse(code = 404, message = "Cliente não encontrado com o ID informado.")
+            }
+    )
     public Cliente getClienteById(@PathVariable Integer id){
         return clienteRepository
                 .findById(id)
@@ -30,12 +42,26 @@ public class ClienteController {
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation("Salva um novo cliente")
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 201, message = "Cliente salvo com sucesso."),
+                    @ApiResponse(code = 400, message = "Erro de validação dos campos do cliente.")
+            }
+    )
     public Cliente saveCliente(@RequestBody @Valid Cliente cliente){
         return clienteRepository.save(cliente);
     }
 
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiOperation("Deleta um cliente pelo ID")
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Cliente deletado."),
+                    @ApiResponse(code = 404, message = "Cliente não encontrado com o ID informado.")
+            }
+    )
     public void deleteCliente(@PathVariable Integer id){
         clienteRepository.findById(id)
                 .map( cliente -> {
@@ -47,6 +73,13 @@ public class ClienteController {
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiOperation("Atualiza um cliente pelo ID")
+    @ApiResponses(
+            {
+                    @ApiResponse(code = 200, message = "Cliente atualizado."),
+                    @ApiResponse(code = 404, message = "Cliente não encontrado com o ID informado.")
+            }
+    )
     public void updateCliente(@PathVariable Integer id,
                               @RequestBody @Valid Cliente cliente) {
         clienteRepository
@@ -59,6 +92,8 @@ public class ClienteController {
     }
 
     @GetMapping
+    @ApiOperation("Obtem clientes com um filtro")
+    @ApiResponse(code = 200, message = "Cliente encontrado.")
     public List<Cliente> find(Cliente filtro) {
         ExampleMatcher matcher = ExampleMatcher
                 .matching()
